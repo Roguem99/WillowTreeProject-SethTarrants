@@ -1,13 +1,12 @@
 package com.willowtreeapps;
 
-import com.google.gson.JsonArray;
-import com.google.gson.annotations.JsonAdapter;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.lang.reflect.Constructor;
 import java.util.*;
 
 /**
@@ -200,6 +199,7 @@ public class HomePage extends BasePage {
     public void validateIncorrectFrequencyIsHigherComparedToCorrectFrequency() {
         //Wait for page to load
         sleep(6000);
+        WebDriverWait wait = new WebDriverWait(driver, 20);
 
         List<String> displayedColleagues = new ArrayList<>();
         List<String> incorrectSelectedColleagues = new ArrayList<>();
@@ -211,13 +211,12 @@ public class HomePage extends BasePage {
             for ( String name : helpArrayOfColleaguesToSelect()){
                 displayedColleagues.add(name);
             }
-//            System.out.println("displayed colleagues => "+displayedColleagues);
             List<WebElement> listOfNames = driver.findElements(By.className("name"));
 
             int indexOfIncColleague = helpIndexOfFirstIncorrectColleague();
             String nameOfIncorrectCollClicked = listOfNames.get(indexOfIncColleague).getText();
             driver.findElements(By.className("shade")).get(indexOfIncColleague).click();
-            sleep(3000);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName("img")));
             incorrectSelectedColleagues.add(nameOfIncorrectCollClicked);
 
             int indexOfCorrectMatch = helpIndexOfCorrectColleague();
@@ -226,12 +225,18 @@ public class HomePage extends BasePage {
             while(incorrectSelectedColleagues.contains(nameOfMatchClicked) && loops < incorrectSelectedColleagues.size()){
                 loops++;
                 driver.navigate().refresh();
-                sleep(12000);
+                sleep(6000);
+                listOfNames = driver.findElements(By.className("name"));
+                wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName("img")));
+                indexOfCorrectMatch = helpIndexOfCorrectColleague();
+                nameOfMatchClicked = listOfNames.get(indexOfCorrectMatch).getText();
+                if(!incorrectSelectedColleagues.contains(nameOfMatchClicked)){
+                    break;
+                }
             }
-            indexOfCorrectMatch = helpIndexOfCorrectColleague();
-            nameOfMatchClicked = listOfNames.get(indexOfCorrectMatch).getText();
             driver.findElements(By.className("shade")).get(indexOfCorrectMatch).click();
             sleep(6000);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName("img")));
             matchedSelectedColleagues.add(nameOfMatchClicked);
         }
 
